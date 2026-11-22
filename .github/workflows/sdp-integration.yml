@@ -4,12 +4,15 @@ on:
   workflow_run:
     workflows: ["CSDP Demo Pipeline"]
     types: [requested, in_progress, completed]
-  pull_request:
-    types: [opened, edited, closed, reopened]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
 
 jobs:
   sdp_integration_job:
-    runs-on: <runner_tags>
+    runs-on: ubuntu-latest
     name: SDP-Integration#${{github.event.action}}#${{github.event.workflow_run.id}}
 
     steps:
