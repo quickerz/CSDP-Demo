@@ -57,7 +57,11 @@ jobs:
         run: |
           $output = npx @opentext/sdp-sdm-tests-to-run-conversion --framework="uft" --testsToRun="${{ github.event.inputs.testsToRun }}" --logLevel=0
 
-          Write-Host "Node output: $output"
+          Write-Host "Original Node output: $output"
+
+          $output = $output -replace '%20', ' '
+
+          Write-Host "Decoded Node output: $output"
 
           $output | Out-File -FilePath $env:TESTS_TO_RUN_MTBX -Encoding utf8
           
