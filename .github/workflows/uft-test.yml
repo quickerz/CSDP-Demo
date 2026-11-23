@@ -5,7 +5,7 @@ on:
     inputs:
       testsToRun:
         description: 'Tests to run (from OpenText SDP)'
-        required: true
+        required: false
         default: ''
       suiteRunId:
         description: 'Suite Run Id (from OpenText SDP)'
