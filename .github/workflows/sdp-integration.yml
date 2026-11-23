@@ -2,7 +2,7 @@ name: OpenText Software Delivery Platform Integration
 
 on:
   workflow_run:
-    workflows: ["CSDP Demo Pipeline"]
+    workflows: ["CSDP Demo Pipeline", "UFT AOS Test"]
     types: [requested, in_progress, completed]
 
 permissions:
@@ -29,4 +29,5 @@ jobs:
           githubToken: ${{secrets.GITHUB_TOKEN}}
           serverBaseUrl: 'https://github.com/quickerz/CSDP-Demo'
           pipelineNamePattern: '${workflow_name}'
+          unitTestResultsGlobPattern: "**/*.xml"
           logLevel: '2'
