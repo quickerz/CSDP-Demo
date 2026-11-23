@@ -51,6 +51,7 @@ jobs:
           node-version: '22'
 
       - name: Convert testsToRun parameter
+        if: ${{ github.event.inputs.testsToRun != '' }}
         id: convert_tests
         shell: powershell
         run: |
@@ -61,6 +62,7 @@ jobs:
           $output | Out-File -FilePath $env:TESTS_TO_RUN_MTBX -Encoding utf8
           
       - name: Create UFT properties file
+        if: ${{ github.event.inputs.testsToRun != '' }}
         shell: powershell
         run: |
           $mtbxPath = Join-Path $pwd $env:TESTS_TO_RUN_MTBX
@@ -80,6 +82,7 @@ jobs:
           Get-Content $env:PROPS_TXT
 
       - name: Download Functional Testing launcher
+        if: ${{ github.event.inputs.testsToRun != '' }}
         shell: powershell
         run: |
           if (Test-Path $env:LAUNCHER_EXE) {
@@ -90,6 +93,7 @@ jobs:
           }
 
       - name: Run AOS UFT test
+        if: ${{ github.event.inputs.testsToRun != '' }}
         id: run-tests
         shell: powershell
         run: |
@@ -106,7 +110,7 @@ jobs:
           }
 
       - name: Archive UFT test results
-        if: always()
+        if: ${{ always() && github.event.inputs.testsToRun != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: uft-aos-test-results
@@ -114,7 +118,7 @@ jobs:
         continue-on-error: true
 
       - name: Find latest UFT HTML report
-        if: always()
+        if: ${{ always() && github.event.inputs.testsToRun != '' }}
         shell: powershell
         run: |
           $report = Get-ChildItem "C:\Users\demo\Documents\Functional Testing\AOS" -Directory |
