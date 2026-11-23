@@ -30,4 +30,5 @@ jobs:
           serverBaseUrl: 'https://github.com/quickerz/CSDP-Demo'
           pipelineNamePattern: '${workflow_name}'
           unitTestResultsGlobPattern: "**/*.xml"
+          testingFramework: uft
           logLevel: '2'
