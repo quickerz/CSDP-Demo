@@ -2,8 +2,26 @@ name: UFT AOS Test
 
 on:
   workflow_dispatch:
+    inputs:
+      testsToRun:
+        description: 'Tests to run (from OpenText SDP)'
+        required: true
+        default: ''
+      suiteRunId:
+        description: 'Suite Run Id (from OpenText SDP)'
+        required: true
+        default: '0'
+      executionId:
+        description: 'Execution Id (from OpenText SDP)'
+        required: true
+        default: '0'
+      suiteId:
+        description: 'Suite Id (from OpenText SDP)'
+        required: true
+        default: '0'
 
 env:
+  TESTS_TO_RUN_MTBX: testsToRun.mtbx
   PROPS_TXT: FT-test-props.txt
   RES_XML: FT-test-results.xml
   LAUNCHER_EXE: FTToolsLauncher.exe
@@ -27,15 +45,31 @@ jobs:
             Write-Error "AOS UFT test NOT found at $env:UFT_TEST_PATH"
             exit 1
           }
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
+      - name: Convert testsToRun parameter
+        id: convert_tests
+        shell: powershell
+        run: |
+          $output = npx @opentext/sdp-sdm-tests-to-run-conversion --framework="uft" --testsToRun="${{ github.event.inputs.testsToRun }}" --logLevel=0
+
+          Write-Host "Node output: $output"
+
+          $output | Out-File -FilePath $env:TESTS_TO_RUN_MTBX -Encoding utf8
+          
       - name: Create UFT properties file
         shell: powershell
         run: |
-          $escapedTestPath = $env:UFT_TEST_PATH.Replace('\', '\\')
+          $mtbxPath = Join-Path $pwd $env:TESTS_TO_RUN_MTBX
+          $escapedMtbxPath = $mtbxPath.Replace('\', '\\')
+
           $content = @"
           runType=FileSystem
           resultsFilename=$env:RES_XML
-          Test1=$escapedTestPath
+          Test1=$escapedMtbxPath
           resultTestNameOnly=true
           resultUnifiedTestClassname=true
           "@
