@@ -135,7 +135,7 @@ jobs:
           }
 
       - name: Archive full UFT HTML report
-        if: always()
+        if: ${{ always() && github.event.inputs.testsToRun != '' }}
         shell: powershell
         run: |
           if ($env:UFT_REPORT_PATH -and (Test-Path $env:UFT_REPORT_PATH)) {
@@ -151,7 +151,7 @@ jobs:
           }
 
       - name: Upload full UFT HTML report
-        if: always()
+        if: ${{ always() && github.event.inputs.testsToRun != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: uft-aos-html-report
