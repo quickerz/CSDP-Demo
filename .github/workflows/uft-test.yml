@@ -78,3 +78,44 @@ jobs:
           name: uft-aos-test-results
           path: FT-test-results.xml
         continue-on-error: true
+
+      - name: Find latest UFT HTML report
+        if: always()
+        shell: powershell
+        run: |
+          $report = Get-ChildItem "C:\Users\demo\Documents\Functional Testing\AOS" -Directory |
+            Where-Object { $_.Name -match '^Report\d+$' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
+          if ($report) {
+            Write-Host "Latest UFT report: $($report.FullName)"
+            "UFT_REPORT_PATH=$($report.FullName)" >> $env:GITHUB_ENV
+          } else {
+            Write-Error "No UFT Report folder found."
+            exit 1
+          }
+
+      - name: Archive full UFT HTML report
+        if: always()
+        shell: powershell
+        run: |
+          if ($env:UFT_REPORT_PATH -and (Test-Path $env:UFT_REPORT_PATH)) {
+            Compress-Archive `
+              -Path "$env:UFT_REPORT_PATH\*" `
+              -DestinationPath "UFT-AOS-HTML-Report.zip" `
+              -Force
+
+            Write-Host "UFT HTML report packaged successfully."
+          } else {
+            Write-Error "UFT report folder not found."
+            exit 1
+          }
+
+      - name: Upload full UFT HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uft-aos-html-report
+          path: UFT-AOS-HTML-Report.zip
+          if-no-files-found: error
